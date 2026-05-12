@@ -53,9 +53,12 @@ import com.movtery.zalithlauncher.utils.file.InvalidFilenameException
 import com.movtery.zalithlauncher.utils.file.checkFilenameValidity
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
+import com.movtery.zalithlauncher.util.vulkanmod.VulkanModManager
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import java.io.File
@@ -101,7 +104,13 @@ sealed interface LaunchGameOperation {
         val quickPlay: QuickPlay?
     ): LaunchGameOperation
 
-    /** 尝试启动：启动前检查一些东西 */
+    /** VulkanMod не установлен */
+    data class VulkanModNotInstalled(
+        val version: Version,
+        val quickPlay: QuickPlay?
+    ): LaunchGameOperation
+
+    /** Попытка запуска: запуск前检查一些东西 */
     data class TryLaunch(
         val version: Version?,
         val quickPlay: QuickPlay? = null
@@ -210,6 +219,24 @@ fun LaunchGameOperation(
                 }
             )
         }
+        is LaunchGameOperation.VulkanModNotInstalled -> {
+            val version = launchGameOperation.version
+            val quickPlay = launchGameOperation.quickPlay
+            SimpleAlertDialog(
+                title = stringResource(R.string.vulkanmod_dialog_title),
+                text = stringResource(R.string.vulkanmod_dialog_message),
+                confirmText = stringResource(R.string.generic_download),
+                onConfirm = {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        VulkanModManager.copyVulkanModToMods(LocalContext.current)
+                    }
+                    updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
+                },
+                onDismiss = {
+                    updateOperation(LaunchGameOperation.None)
+                }
+            )
+        }
         is LaunchGameOperation.TryLaunch -> {
             LaunchedEffect(Unit) {
                 val version = launchGameOperation.version ?: run {
@@ -263,6 +290,13 @@ fun LaunchGameOperation(
                     RendererPluginManager.isConfigurablePlugin(version.getRenderer())
                 ) {
                     updateOperation(LaunchGameOperation.RendererNoStoragePermission(currentRenderer, version, quickPlay))
+                    return@LaunchedEffect
+                }
+
+                //检查 VulkanMod
+                if (!VulkanModManager.isVulkanModInstalled() && !VulkanModManager.hasDialogBeenShown()) {
+                    VulkanModManager.markDialogShown()
+                    updateOperation(LaunchGameOperation.VulkanModNotInstalled(version, quickPlay))
                     return@LaunchedEffect
                 }
 
