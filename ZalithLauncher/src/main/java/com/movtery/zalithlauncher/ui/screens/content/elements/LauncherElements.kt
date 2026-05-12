@@ -222,13 +222,14 @@ fun LaunchGameOperation(
         is LaunchGameOperation.VulkanModNotInstalled -> {
             val version = launchGameOperation.version
             val quickPlay = launchGameOperation.quickPlay
+            val context = LocalContext.current
             SimpleAlertDialog(
                 title = stringResource(R.string.vulkanmod_dialog_title),
                 text = stringResource(R.string.vulkanmod_dialog_message),
                 confirmText = stringResource(R.string.generic_download),
                 onConfirm = {
                     GlobalScope.launch(Dispatchers.IO) {
-                        VulkanModManager.copyVulkanModToMods(LocalContext.current)
+                        VulkanModManager.copyVulkanModToMods(context)
                     }
                     updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
                 },
