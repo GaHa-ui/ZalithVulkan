@@ -605,8 +605,11 @@ object AllSettings : SettingsRegistry() {
      */
     val searchResourcePackPlatform = enumSetting("searchResourcePackPlatform", Platform.MODRINTH)
 
-    /**
-     * 搜索光影的初始搜索平台
-     */
+    val vulkanmodArm64LibsInstalled = boolSetting("vulkanmodArm64LibsInstalled", false)
+    val vulkanmodAutoUpdate = boolSetting("vulkanmodAutoUpdate", true)
+    val autoCreateOfflineAccount = boolSetting("autoCreateOfflineAccount", true)
+    val defaultRenderer = stringSetting("defaultRenderer", "Zink (Vulkan)")
+    val lowEndRamOptimization = boolSetting("lowEndRamOptimization", false)
+
     val searchShadersPlatform = enumSetting("searchShadersPlatform", Platform.MODRINTH)
 }

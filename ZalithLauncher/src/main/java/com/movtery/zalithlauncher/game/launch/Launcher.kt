@@ -263,8 +263,12 @@ abstract class Launcher(
 
         args.add("-javaagent:${LibPath.MIO_LIB_PATCHER.absolutePath}")
 
-        //Add automatically generated args
-        val ramAllocationString = ramAllocation.toString()
+        val effectiveRam = if (AllSettings.lowEndRamOptimization.getValue()) {
+            (ramAllocation * 0.6).toInt().coerceAtLeast(256)
+        } else {
+            ramAllocation
+        }
+        val ramAllocationString = effectiveRam.toString()
         args.add("-Xms${ramAllocationString}M")
         args.add("-Xmx${ramAllocationString}M")
 

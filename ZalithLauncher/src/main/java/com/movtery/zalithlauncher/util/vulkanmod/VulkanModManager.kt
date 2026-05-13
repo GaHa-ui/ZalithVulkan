@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.util.vulkanmod
 import android.content.Context
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,6 +11,7 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 
 const val VULKANMOD_JAR_NAME = "VulkanMod-Android-ARM64.jar"
+const val VULKANMOD_REPO = "shindozk/VulkanMod-Android-ARM64"
 
 object VulkanModManager {
     private var dialogShown = false
@@ -39,6 +41,7 @@ object VulkanModManager {
                 }
             }
             lInfo("VulkanMod copied to mods: ${destFile.absolutePath}")
+            AllSettings.vulkanmodArm64LibsInstalled.save(true)
             true
         } catch (e: Exception) {
             lInfo("Failed to copy VulkanMod: ${e.message}")

@@ -67,6 +67,13 @@ import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.sendDLPlugin
 
+private val RENDERER_OPTIONS = listOf(
+    "Zink (Vulkan)",
+    "VirGL",
+    "Freedreno",
+    "Panfrost"
+)
+
 @Composable
 fun GameSettingsScreen(
     key: NestedNavKey.Settings,
@@ -240,6 +247,41 @@ fun GameSettingsScreen(
                         unit = AllSettings.jvmArgs,
                         title = stringResource(R.string.settings_game_jvm_args_title),
                         summary = stringResource(R.string.settings_game_jvm_args_summary)
+                    )
+                }
+            }
+
+            AnimatedItem(scope) { yOffset ->
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    SwitchSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
+                        unit = AllSettings.lowEndRamOptimization,
+                        title = "Low-end RAM mode",
+                        summary = "Reduces RAM allocation by 40% for weak devices"
+                    )
+
+                    SwitchSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
+                        unit = AllSettings.vulkanmodAutoUpdate,
+                        title = "Auto-update VulkanMod",
+                        summary = "Check for VulkanMod updates on app start"
+                    )
+
+                    ListSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
+                        unit = AllSettings.defaultRenderer,
+                        items = RENDERER_OPTIONS,
+                        title = "Default renderer",
+                        summary = "Renderer to use when launching games",
+                        getItemText = { it },
+                        getItemId = { it }
                     )
                 }
             }

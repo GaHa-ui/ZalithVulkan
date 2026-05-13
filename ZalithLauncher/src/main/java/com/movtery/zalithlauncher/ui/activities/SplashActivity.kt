@@ -30,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.SplashException
 import com.movtery.zalithlauncher.components.Components
@@ -38,6 +39,8 @@ import com.movtery.zalithlauncher.components.UnpackComponentsTask
 import com.movtery.zalithlauncher.components.jre.Jre
 import com.movtery.zalithlauncher.components.jre.UnpackJnaTask
 import com.movtery.zalithlauncher.components.jre.UnpackJreTask
+import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseAppCompatActivity
 import com.movtery.zalithlauncher.ui.screens.splash.SplashScreen
@@ -213,10 +216,25 @@ class SplashActivity : BaseAppCompatActivity(refreshData = false) {
             jobs.joinAll()
         }.invokeOnCompletion {
             AllSettings.javaRuntime.apply {
-                //检查并设置默认的Java环境
                 if (getValue().isEmpty()) save(Jre.JRE_8.jreName)
             }
+
+            if (AllSettings.autoCreateOfflineAccount.getValue()) {
+                createDefaultOfflineAccount()
+            }
+
+            if (AllSettings.defaultRenderer.getValue().isNotEmpty()) {
+                AllSettings.renderer.save(AllSettings.defaultRenderer.getValue())
+            }
+
             swapToMain()
+        }
+    }
+
+    private fun createDefaultOfflineAccount() {
+        val currentAccounts by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
+        if (currentAccounts == null) {
+            localLogin("Player", null)
         }
     }
 
