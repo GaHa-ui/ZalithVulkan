@@ -220,7 +220,9 @@ class SplashActivity : BaseAppCompatActivity(refreshData = false) {
             }
 
             if (AllSettings.autoCreateOfflineAccount.getValue()) {
-                createDefaultOfflineAccount()
+                if (AccountsManager.currentAccountFlow.value == null) {
+                    localLogin("Player", null)
+                }
             }
 
             if (AllSettings.defaultRenderer.getValue().isNotEmpty()) {
@@ -228,13 +230,6 @@ class SplashActivity : BaseAppCompatActivity(refreshData = false) {
             }
 
             swapToMain()
-        }
-    }
-
-    private fun createDefaultOfflineAccount() {
-        val currentAccounts by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
-        if (currentAccounts == null) {
-            localLogin("Player", null)
         }
     }
 
